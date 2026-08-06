@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\storeProdukRequest;
+use App\Http\Requests\updateProdukRequest;
 use App\Models\Produk;
 use GuzzleHttp\Psr7\Query;
 use Illuminate\Http\Request;
@@ -27,5 +29,40 @@ class ProdukController extends Controller
         confirmDelete('Menghapus data produk akan menghapus semua varian yang ada, Lanjutkan ?');
 
         return view('produk.index', compact('pageTitle', 'produk'));
+    }
+
+    public function store(storeProdukRequest $request)
+    {
+        Produk::create([
+            'nama_produk' => $request->nama_produk,
+            'deskripsi_produk' => $request->deskripsi_produk,
+            'kategori_produk_id' => $request->kategori_produk_id,
+        ]);
+        toast()->success('Produk berhasil ditambahkan');
+        return redirect()->route('master-data.produk.index');
+    }
+
+    public function update(updateProdukRequest $request, Produk $produk)
+    {
+        $produk->update([
+            'nama_produk' => $request->nama_produk,
+            'deskripsi_produk' => $request->deskripsi_produk,
+            'kategori_produk_id' => $request->kategori_produk_id
+        ]);
+        toast()->success('Produk berhasil diupdate');
+        return redirect()->route('master-data.produk.index');
+    }
+
+    public function show(Produk $produk)
+    {
+        $pageTitle = $this->pageTitle;
+        return view('produk.show', compact('produk', 'pageTitle'));
+    }
+
+    public function destroy(Produk $produk)
+    {
+        $produk->delete();
+        toast()->success('Produk berhasil dihapus');
+        return redirect()->route('master-data.produk.index');
     }
 }

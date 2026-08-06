@@ -3,7 +3,17 @@
 @section('content')
     <div class="card">
         <div class="card-body py-5">
-            <table class="table">
+            <div class="row align-items-center">
+                {{-- filter --}}
+                <div class="row col-10"></div>
+                {{-- endfilter --}}
+                {{-- form --}}
+                <div class="col-2 d-flex justify-content-end">
+                    <x-produk.form-produk />
+                </div>
+                {{-- end form --}}
+            </div>
+            <table class="table mt-5">
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 15px">No</th>
@@ -16,11 +26,16 @@
                     @forelse ($produk as $index => $item)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>{{ $item->nama_produk }}</td>
-                            <td>{{ $$item->kategori->$nama_kategori }}</td>
+                            <td>
+                                <a href="{{ route('master-data.produk.show', $item->id) }}" class="text-decoration-none">
+                                    {{ $item->nama_produk }}
+                                </a>
+                            </td>
+                            <td>{{ $item->kategori?->nama_kategori }}</td>
                             <td>
                                 <div class="d-flex align-items-center gap-1">
-                                    <x-confirm-delete id="{{ $item->id }}" route="master-data.kategori-produk.destroy" />
+                                    <x-produk.form-produk id="{{ $item->id }}" />
+                                    <x-confirm-delete id="{{ $item->id }}" route="master-data.produk.destroy" />
                                 </div>
                             </td>
                         </tr>

@@ -33,13 +33,13 @@ class ProdukController extends Controller
 
     public function store(storeProdukRequest $request)
     {
-        Produk::create([
+        $produk = Produk::create([
             'nama_produk' => $request->nama_produk,
             'deskripsi_produk' => $request->deskripsi_produk,
             'kategori_produk_id' => $request->kategori_produk_id,
         ]);
         toast()->success('Produk berhasil ditambahkan');
-        return redirect()->route('master-data.produk.index');
+        return redirect()->route('master-data.produk.show', $produk->id);
     }
 
     public function update(updateProdukRequest $request, Produk $produk)

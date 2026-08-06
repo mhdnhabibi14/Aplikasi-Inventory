@@ -5,7 +5,17 @@
         <div class="card-body py-5">
             <div class="row align-items-center">
                 {{-- filter --}}
-                <div class="row col-10"></div>
+                <div class="row col-10 align-items-center justify-content-between">
+                    <div class="col-1">
+                        <x-per-page-option />
+                    </div>
+                    <div class="col-8">
+                        <x-filter-by-field term="search" placeholder="Cari Produk" />
+                    </div>
+                    <div class="col-2">
+                        <x-button-reset-filter route="master-data.produk.index" />
+                    </div>
+                </div>
                 {{-- endfilter --}}
                 {{-- form --}}
                 <div class="col-2 d-flex justify-content-end">

@@ -21,11 +21,13 @@ class StokBarangController extends Controller
         $query = $query->with('produk', 'produk.kategori');
 
         if ($search) {
-            $query->where('nama_produk', 'like', '%' . $search . '%')
-                ->orWhere('nomor_sku', 'like', '%' . $search . '%')
-                ->orWhereHas('produk', function ($query) use ($search) {
-                    $query->where('nama_produk', 'like', '%' . $search . '%');
-                });
+            $query->where(function ($query) use ($search) {
+                $query->where('nomor_sku', 'like', '%' . $search . '%')
+                    ->orWhere('nama_varian', 'like', '%' . $search . '%')
+                    ->orWhereHas('produk', function ($query) use ($search) {
+                        $query->where('nama_produk', 'like', '%' . $search . '%');
+                    });
+            });
         }
 
         if ($requestKategori) {

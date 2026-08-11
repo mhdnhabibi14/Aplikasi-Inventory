@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\storeVarianProdukRequest;
 use App\Http\Requests\updateVarianProdukRequest;
+use App\Models\KartuStok;
 use App\Models\VarianProduk;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Expr\FuncCall;
 
@@ -31,7 +33,12 @@ class VarianProdukController extends Controller
 
     public function update(updateVarianProdukRequest $request, int $varian_produk)
     {
+        $isAdjusment = false;
         $varian = VarianProduk::findOrFail($varian_produk);
+
+        if ($request->stok_varian != $varian->stok_varian) {
+            $isAdjusment = true;
+        }
 
         $fileName = $varian->gambar_varian;
 
@@ -42,11 +49,20 @@ class VarianProdukController extends Controller
         }
 
         $varian->update([
-            'nama_varian' => $request->nama_varian,
-            'harga_varian' => $request->harga_varian,
-            'stok_varian' => $request->stok_varian,
+            'nama_varian'   => $request->nama_varian,
+            'harga_varian'  => $request->harga_varian,
+            'stok_varian'   => $request->stok_varian,
             'gambar_varian' => $fileName
         ]);
+
+        if ($isAdjusment) {
+            KartuStok::create([
+                'jenis_transaksi'   => 'adjustment',
+                'nomor_sku'         => $varian->nomor_sku,
+                'stok_akhir'        => $varian->stok_varian,
+                'petugas'           => Auth::user()->name
+            ]);
+        }
 
         return response()->json([
             'message' => 'Data berhasil diupdate'

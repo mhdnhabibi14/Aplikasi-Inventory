@@ -41,7 +41,33 @@
             </form>
             {{-- end form --}}
             {{-- table --}}
-            <table class="table mt-5" id="table-produk"></table>
+            <table class="table mt-5" id="table-produk">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 15px">No</th>
+                        <th>Produk</th>
+                        <th>Nomor Batch</th>
+                        <th>Qty</th>
+                        <th>Harga</th>
+                        <th>Sub Total</th>
+                        <th>Opsi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="6" class="text-end">Grand Total</th>
+                        <th id="grand-total">0</th>
+                    </tr>
+                    <tr>
+                        <th colspan="7" class="text-end">
+                            <form id='form-tansaksi'>
+                                <button type="submit" class="btn btn-primary">Simpan Transaksi</button>
+                            </form>
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
             {{-- end table --}}
         </div>
     </div>
@@ -82,6 +108,103 @@
                     }
                 }
             })
+
+            $('#select-produk').on('select2:select', function(e) {
+                let data = e.params.data;
+                selectedOption = data;
+            })
+
+            $("#form-add-produk").on("submit", function(e) {
+                e.preventDefault();
+                let qty = parseInt($("#qty").val());
+                let harga = parseInt($("#harga").val());
+                let nomor_batch = $("#nomor_batch").val();
+
+                if (!selectedOption.id || !qty || !harga || !nomor_batch) {
+                    swal({
+                        icon: 'warning',
+                        title: 'Perhatian',
+                        text: 'Inputan belum lengkap',
+                        timer: 3000
+                    })
+                    return;
+                }
+
+                if (qty < 1 || harga < 1) {
+                    swal({
+                        icon: 'warning',
+                        title: 'Perhatian',
+                        text: 'Qty atau harga tidak boleh kurang dari 1',
+                        timer: 3000
+                    })
+                    return;
+                }
+
+                let subTotal = qty * harga;
+
+                let existingItem = selectedProduk.find(item => item.nomor_sku === selectedOption.nomor_sku);
+
+                if (existingItem) {
+                    existingItem.qty = parseInt(existingItem.qty) + parseInt(qty);
+                    existingItem.harga = parseInt(harga);
+                    existingItem.subTotal = existingItem.qty * existingItem.harga;
+                } else {
+                    selectedProduk.push({
+                        text: selectedOption.text,
+                        nomor_sku: selectedOption.nomor_sku,
+                        qty: qty,
+                        harga: harga,
+                        nomor_batch: nomor_batch,
+                        subTotal: subTotal,
+                    })
+                }
+
+                $("#select-produk").val(null).trigger('change');
+                $("#qty").val('');
+                $("#harga").val('');
+                $("#nomor_batch").val('');
+                renderTable();
+            });
+
+            function renderTable() {
+                let tableBody = $("#table-produk tbody");
+                tableBody.empty();
+                selectedProduk.forEach((item, index) => {
+                    let row = `
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td>${item.text}</td>
+                        <td>${item.nomor_batch}</td>
+                        <td>${item.qty}</td>
+                        <td>${numberFormat.format(item.harga)}</td>
+                        <td>${numberFormat.format(item.subTotal)}</td>
+                        <td>
+                            <button class="btn btn-danger btn-round btn-delete btn-icon" data-nomor-sku="${item.nomor_sku}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    `;
+                    tableBody.append(row);
+                })
+
+                $(document).on("click", ".btn-delete", function() {
+                    let nomorSku = $(this).data('nomor-sku');
+                    selectedProduk = selectedProduk.filter(item => item.nomor_sku !== nomorSku);
+                    renderTable();
+                })
+
+                if (selectedProduk.length === 0) {
+                    tableBody.append(`<tr><td colspan="7" class="text-center">Tidak ada data produk</td></tr>`)
+                }
+
+                // bikin grand total
+                let grandTotal = selectedProduk.reduce((total, item) => total + item.subTotal, 0);
+                $("#grand-total").text(numberFormat.format(grandTotal));
+            }
+
+            renderTable();
+
         });
     </script>
 @endpush

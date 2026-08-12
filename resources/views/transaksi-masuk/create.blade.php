@@ -5,7 +5,7 @@
         <div class="card-body">
             {{-- form --}}
             <form class="row col-12 justify-content-between" id="form-add-produk">
-                <div class="alert alert-danger" id="alert-danger"></div>
+                <div class="alert alert-danger" id="alert-danger" style="box-shadow: none !important"></div>
                 <div class="row">
                     <div class="form-group w-25">
                         <label for="pengirim" class="form-label">Pengirim</label>
@@ -61,7 +61,7 @@
                     </tr>
                     <tr>
                         <th colspan="7" class="text-end">
-                            <form id='form-tansaksi'>
+                            <form id='form-transaksi'>
                                 <button type="submit" class="btn btn-primary">Simpan Transaksi</button>
                             </form>
                         </th>
@@ -204,6 +204,54 @@
             }
 
             renderTable();
+
+            $("#form-transaksi").on("submit", function(e) {
+                e.preventDefault();
+                if (selectedProduk.length === 0) {
+                    swal({
+                        icon: 'warning',
+                        title: 'Perhatian',
+                        text: 'Wajib menuliskan 1 produk yang akan dicatat',
+                        timer: 3000
+                    })
+                    return;
+                }
+
+                $.ajax({
+                    method: "POST",
+                    url: "{{ route('transaksi-masuk.store') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        items: selectedProduk,
+                        pengirim: $("#pengirim").val(),
+                        kontak: $("#kontak").val(),
+                        keterangan: $("#keterangan").val(),
+                    },
+                    success: function(response) {
+
+                    },
+                    error: function(xhr) {
+                        const errors = xhr.responseJSON?.errors;
+                        console.log();
+                        if (errors) {
+                            renderError(errors);
+                            return;
+                        }
+                    }
+                });
+            });
+
+            function renderError(errors) {
+                let alertBox = $("#alert-danger");
+                alertBox.empty();
+                Object.values(errors).forEach(err => {
+                    err.forEach(msg => {
+                        alertBox.append(`<p>${msg}</p>`);
+                    })
+                })
+
+                alertBox.show();
+            }
 
         });
     </script>

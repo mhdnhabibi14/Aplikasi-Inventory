@@ -6,6 +6,7 @@ use App\Http\Requests\storeTransaksiMasukRequest;
 use App\Models\KartuStok;
 use App\Models\Transaksi;
 use App\Models\VarianProduk;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -15,10 +16,45 @@ class TransaksiMasukController extends Controller
     public $pageTitle = 'Transaksi Masuk';
     public $jenisTransaksi = 'pemasukan';
 
+    public function index()
+    {
+        $pengirim = request()->query('pengirim');
+        $tanggalAwal = request()->query('tanggal_awal');
+        $tanggalAkhir = request()->query('tanggal_akhir');
+        $perPage = request()->query('perPage', 10);
+
+        $query = Transaksi::query();
+        $query->orderBy('created_at', 'DESC');
+        $query->where('jenis_transaksi', $this->jenisTransaksi);
+
+        if ($pengirim) {
+            $query->where('pengirim', 'like', '%' . $pengirim . '%');
+        }
+
+        if ($tanggalAwal && $tanggalAkhir) {
+            $tanggalAwal = Carbon::parse($tanggalAwal)->startOfDay();
+            $tanggalAkhir = Carbon::parse($tanggalAkhir)->endOfDay();
+            $query->whereBetween('created_at', [$tanggalAwal, $tanggalAkhir]);
+        }
+
+        $transaksi = $query->paginate($perPage)->appends(request()->query());
+
+        $pageTitle = $this->pageTitle;
+        return view('transaksi-masuk.index', compact('pageTitle', 'transaksi'));
+    }
+
     public function create()
     {
         $pageTitle = $this->pageTitle;
         return view('transaksi-masuk.create', compact('pageTitle'));
+    }
+
+    public function show(string $nomor_transaksi)
+    {
+        $pageTitle = "Detail " . $this->pageTitle;
+        $transaksi = Transaksi::with('items')->where('nomor_transaksi', $nomor_transaksi)->first();
+        $transaksi->formated_date = Carbon::parse($transaksi->created_at)->locale('id')->translatedFormat('l, d F Y');
+        return view('transaksi-masuk.show', compact('transaksi', 'pageTitle'));
     }
 
     public function store(storeTransaksiMasukRequest $request)

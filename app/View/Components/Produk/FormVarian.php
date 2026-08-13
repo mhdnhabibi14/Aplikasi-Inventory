@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\produk;
+namespace App\View\Components\Produk;
 
 use App\Models\VarianProduk;
 use Closure;

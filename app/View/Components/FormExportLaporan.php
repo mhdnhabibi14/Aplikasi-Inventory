@@ -1,20 +1,20 @@
 <?php
 
-namespace App\View\Components\Produk;
+namespace App\View\Components;
 
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class CardVarian extends Component
+class FormExportLaporan extends Component
 {
     /**
      * Create a new component instance.
      */
-    public mixed $varian;
-    public function __construct(mixed $varian)
+    public string $jenisTransaksi;
+    public function __construct(string $jenisTransaksi)
     {
-        $this->varian = $varian;
+        $this->jenisTransaksi = $jenisTransaksi;
     }
 
     /**
@@ -22,6 +22,6 @@ class CardVarian extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.produk.card-varian');
+        return view('components.form-export-laporan');
     }
 }

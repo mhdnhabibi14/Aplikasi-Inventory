@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ExportLaporanTransaksiController;
 use App\Http\Controllers\KartuStokController;
 use App\Http\Controllers\KategoriProdukController;
 use App\Http\Controllers\ProdukController;
@@ -25,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('get-data')->name('get-data.')->group(function () {
         Route::get('/varian-produk', [VarianProdukController::class, 'getAllVarianJson'])->name('varian-produk');
     });
+
+    Route::post('export-laporan-transaksi', [ExportLaporanTransaksiController::class, 'exportLaporanTransaksi'])->name('export-laporan-transaksi');
 
     Route::prefix('master-data')->name('master-data.')->group(function () {
         Route::resource('kategori-produk', KategoriProdukController::class);

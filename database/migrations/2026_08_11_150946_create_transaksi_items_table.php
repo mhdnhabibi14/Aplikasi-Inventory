@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('transaksi_id')->nullable()->constrained('transaksis')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('produk');
-            $table->string('namor_sku');
+            $table->string('nomor_sku');
             $table->string('nomor_batch')->nullable();
             $table->string('varian');
             $table->integer('qty');

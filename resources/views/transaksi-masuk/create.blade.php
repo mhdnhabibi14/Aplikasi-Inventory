@@ -228,7 +228,9 @@
                         keterangan: $("#keterangan").val(),
                     },
                     success: function(response) {
-
+                        if (response.success) {
+                            window.location.href = response.redirect_url;
+                        }
                     },
                     error: function(xhr) {
                         const errors = xhr.responseJSON?.errors;

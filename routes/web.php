@@ -3,6 +3,7 @@
 use App\Http\Controllers\ExportLaporanTransaksiController;
 use App\Http\Controllers\KartuStokController;
 use App\Http\Controllers\KategoriProdukController;
+use App\Http\Controllers\LaporanKenaikanHargaController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\StokBarangController;
 use App\Http\Controllers\TransaksiMasukController;
@@ -28,6 +29,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post('export-laporan-transaksi', [ExportLaporanTransaksiController::class, 'exportLaporanTransaksi'])->name('export-laporan-transaksi');
+
+    Route::resource('laporan-kenaikan-harga', LaporanKenaikanHargaController::class)->only(['index', 'update']);
 
     Route::prefix('master-data')->name('master-data.')->group(function () {
         Route::resource('kategori-produk', KategoriProdukController::class);

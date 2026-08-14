@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\storeVarianProdukRequest;
 use App\Http\Requests\updateVarianProdukRequest;
 use App\Models\KartuStok;
+use App\Models\LaporanKenaikanHarga;
 use App\Models\VarianProduk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,6 +36,7 @@ class VarianProdukController extends Controller
     {
         $isAdjusment = false;
         $varian = VarianProduk::findOrFail($varian_produk);
+        $existKenaikanHarga = LaporanKenaikanHarga::where('nomor_sku', $varian->nomor_sku)->where('is_confirmed', false)->first();
 
         if ($request->stok_varian != $varian->stok_varian) {
             $isAdjusment = true;
@@ -54,6 +56,12 @@ class VarianProdukController extends Controller
             'stok_varian'   => $request->stok_varian,
             'gambar_varian' => $fileName
         ]);
+
+        if ($existKenaikanHarga && $request->harga_varian > $existKenaikanHarga->harga_beli) {
+            $existKenaikanHarga->update([
+                'is_confirmed' => true
+            ]);
+        }
 
         if ($isAdjusment) {
             KartuStok::create([

@@ -18,7 +18,7 @@ class TransaksiKeluarController extends Controller
 
     public function index()
     {
-        $pengirim = request()->query('pengirim');
+        $penerima = request()->query('penerima');
         $tanggalAwal = request()->query('tanggal_awal');
         $tanggalAkhir = request()->query('tanggal_akhir');
         $perPage = request()->query('perPage', 10);
@@ -27,8 +27,8 @@ class TransaksiKeluarController extends Controller
         $query->orderBy('created_at', 'DESC');
         $query->where('jenis_transaksi', $this->jenisTransaksi);
 
-        if ($pengirim) {
-            $query->where('pengirim', 'like', '%' . $pengirim . '%');
+        if ($penerima) {
+            $query->where('pengirim', 'like', '%' . $penerima . '%');
         }
 
         if ($tanggalAwal && $tanggalAkhir) {

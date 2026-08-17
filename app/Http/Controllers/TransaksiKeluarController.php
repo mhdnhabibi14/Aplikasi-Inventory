@@ -115,4 +115,18 @@ class TransaksiKeluarController extends Controller
             'redirect_url'  => route('transaksi-keluar.create')
         ]);
     }
+
+    public function getTransaksiKeluar()
+    {
+        $search = request()->query('search');
+        $transaksi = Transaksi::where('jenis_transaksi', 'pemasukan')
+            ->where('nomor_transaksi', 'like', '%' . $search . '%')
+            ->get()->map(function ($q) {
+                return [
+                    'id'    => $q->id,
+                    'text'  => $q->nomor_transaksi,
+                ];
+            });
+        return response()->json($transaksi);
+    }
 }

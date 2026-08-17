@@ -287,6 +287,36 @@
 
             renderTable();
 
+            $("#btn-submit-retur").on("click", function() {
+                let nomor_transaksi = $("#nomor_transaksi").html();
+
+                if (returItems.length < 1) {
+                    swal({
+                        icon: 'warning',
+                        title: 'Perhatian',
+                        text: 'Tidak ada data yang akan diretur',
+                        timer: 3000
+                    })
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('transaksi-retur.store') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        nomor_transaksi: nomor_transaksi,
+                        items: returItems
+                    },
+                    success: function(reponse) {
+                        if (response.success) {
+                            window.location.href = response.redirect_url;
+                        }
+                    }
+                })
+
+            });
+
         });
     </script>
 @endpush

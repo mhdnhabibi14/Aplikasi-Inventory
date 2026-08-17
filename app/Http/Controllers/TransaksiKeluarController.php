@@ -129,4 +129,11 @@ class TransaksiKeluarController extends Controller
             });
         return response()->json($transaksi);
     }
+
+    public function getTransaksiKeluarItems(string $nomor_transaksi)
+    {
+        $transaksi = Transaksi::with('items', 'items.varian')->where('nomor_transaksi', $nomor_transaksi)->first();
+        $transaksi->tanggal = Carbon::parse($transaksi->created_at)->locale('id')->translatedFormat('l, d F Y');
+        return response()->json($transaksi);
+    }
 }

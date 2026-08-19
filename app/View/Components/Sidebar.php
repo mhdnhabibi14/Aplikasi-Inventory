@@ -105,10 +105,10 @@ class Sidebar extends Component
                         'label' => 'Periode Stok Opname',
                         'route' => 'stok-opname.periode.index',
                     ],
-                    // [
-                    //     'label' => 'Data Transaksi',
-                    //     'route' => 'transaksi-retur.index',
-                    // ],
+                    [
+                        'label' => 'Input Laporan',
+                        'route' => 'stok-opname.input-data.create',
+                    ],
                 ]
             ],
             [

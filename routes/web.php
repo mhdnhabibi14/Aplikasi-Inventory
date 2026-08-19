@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ExportLaporanTransaksiController;
 use App\Http\Controllers\InputStokOpnameController;
+use App\Http\Controllers\ItemStokOpnameController;
 use App\Http\Controllers\KartuStokController;
 use App\Http\Controllers\KategoriProdukController;
 use App\Http\Controllers\LaporanKenaikanHargaController;
@@ -52,5 +53,6 @@ Route::middleware('auth')->group(function () {
     Route::prefix('stok-opname')->name('stok-opname.')->group(function () {
         Route::resource('periode', PeriodeStokOpnameController::class);
         Route::resource('input-data', InputStokOpnameController::class);
+        Route::post('/update-produk', [ItemStokOpnameController::class, 'updateProduk'])->name('update-produk');
     });
 });

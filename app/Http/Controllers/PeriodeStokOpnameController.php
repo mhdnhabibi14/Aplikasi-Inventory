@@ -28,8 +28,8 @@ class PeriodeStokOpnameController extends Controller
                 'is_active'                 => $q->is_active,
                 'is_completed'              => $q->is_completed,
                 'jumlah_barang'             => $q->jumlah_barang,
-                'jumlah_barang_sesuai'      => $q->jumlah_barang_sesuai,
-                'jumlah_barang_selisih'     => $q->jumlah_barang_selisih
+                'jumlah_barang_sesuai'      => ItemStokOpname::jumlahDilaporkan($q->id, 'sesuai'),
+                'jumlah_barang_selisih'     => ItemStokOpname::jumlahDilaporkan($q->id, 'selisih')
             ];
         });
         return view('stok-opname.periode.index', compact('pageTitle', 'dataPeriode'));
@@ -96,5 +96,24 @@ class PeriodeStokOpnameController extends Controller
 
         toast()->success('Periode Stok Opname berhasil dihapus');
         return redirect()->route('stok-opname.periode.index');
+    }
+
+    public function show(int $periode)
+    {
+        $pageTitle = $this->pageTitle;
+        $dataPeriode = PeriodeStokOpname::findOrFail($periode);
+        $tanggal_mulai = Carbon::parse($dataPeriode->tanggal_mulai)->locale('id')->translatedFormat('d M Y');
+        $tanggal_selesai = Carbon::parse($dataPeriode->tanggal_selesai)->locale('id')->translatedFormat('d M Y');
+        $periode = $tanggal_mulai . ' s/d ' . $tanggal_selesai;
+        $dataPeriode['periode'] = $periode;
+
+        $dataPeriode['jumlah_barang_sesuai'] = ItemStokOpname::jumlahDilaporkan($dataPeriode->id, 'sesuai');
+        $dataPeriode['jumlah_barang_selisih'] = ItemStokOpname::jumlahDilaporkan($dataPeriode->id, 'selisih');
+        $dataPeriode['items'] = $dataPeriode->items->map(function ($q) {
+            $q->setAttribute('produk', $q->varian->produk->nama_produk . ' ' . $q->varian->nama_varian);
+            return $q;
+        });
+
+        return view('stok-opname.periode.show', compact('pageTitle', 'dataPeriode'));
     }
 }

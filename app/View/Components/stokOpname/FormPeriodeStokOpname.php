@@ -26,7 +26,7 @@ class FormPeriodeStokOpname extends Component
             $this->tanggal_mulai = $periode->tanggal_mulai;
             $this->tanggal_selesai = $periode->tanggal_selesai;
             $this->is_active = $periode->is_active;
-            $this->action = route('stok-opname.pariode.update', $periode->id);
+            $this->action = route('stok-opname.periode.update', $periode->id);
         } else {
             $this->action = route('stok-opname.periode.store');
         }

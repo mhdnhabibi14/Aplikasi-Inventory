@@ -1,11 +1,11 @@
 @extends('layouts.kai')
 @section('page_title', $pageTitle)
 @section('content')
-    <div class="card py-5">
+    <div class="card p-5">
         <div class="d-flex justify-content-end">
             <x-stok-opname.form-periode-stok-opname />
         </div>
-        <table class="table mt-5">
+        <table class="table mt-3">
             <thead>
                 <tr>
                     <th>No</th>
@@ -22,12 +22,23 @@
                 @forelse ($dataPeriode as $index => $item)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $item->periode }}</td>
-                        <td>{{ $item->jumlah_barang }}</td>
-                        <td>{{ $item->jumlah_barang_sesuai }}</td>
-                        <td>{{ $item->jumlah_barang_selisih }}</td>
-                        <td>{{ $item->is_active }}</td>
-                        <td>{{ $item->is_completed }}</td>
+                        <td>{{ $item['periode'] }}</td>
+                        <td>{{ $item['jumlah_barang'] }}</td>
+                        <td>{{ $item['jumlah_barang_sesuai'] }}</td>
+                        <td>{{ $item['jumlah_barang_selisih'] }}</td>
+                        <td>{{ $item['is_active'] ? 'Aktif' : 'Tidak Aktif' }}</td>
+                        <td>
+                            <span
+                                class="badge text-white {{ $item['is_completed'] ? 'bg-success' : 'bg-danger' }} px-2 py-1">
+                                {{ $item['is_completed'] ? 'Langkap' : 'Belum Langkap' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <x-stok-opname.form-periode-stok-opname id="{{ $item['id'] }}" />
+                                <x-confirm-delete id="{{ $item['id'] }}" route="stok-opname.periode.destroy" />
+                            </div>
+                        </td>
                     </tr>
                 @empty
                     <tr>

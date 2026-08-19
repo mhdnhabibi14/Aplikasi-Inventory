@@ -42,7 +42,7 @@
                     <div class="form-group d-flex flex-column">
                         <label for="is_active" class="form-label">
                             <input type="checkbox" name="is_active" id="is_active" value="1"
-                                {{ old('is_active', $is_active ?? 0) == 1 ? 'checkbox' : '' }}> Aktifkan Langsung
+                                {{ old('is_active', $is_active ?? 0) == 1 ? 'checked' : '' }}> Aktifkan Langsung
                         </label>
                         <small>
                             {{ $id

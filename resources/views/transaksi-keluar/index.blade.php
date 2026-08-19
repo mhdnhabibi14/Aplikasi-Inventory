@@ -2,7 +2,7 @@
 @section('page_title', $pageTitle)
 @section('content')
 
-    <div class="card py-5">
+    <div class="card p-5">
         <div class="card-body">
             <div class="row align-items-end">
                 <div class="col-11">

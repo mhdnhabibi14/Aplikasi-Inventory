@@ -57,7 +57,7 @@ class VarianProdukController extends Controller
             'gambar_varian' => $fileName
         ]);
 
-        if ($existKenaikanHarga && $request->harga_varian > $existKenaikanHarga->harga_beli) {
+        if ($existKenaikanHarga && $request->harga_varian >= $existKenaikanHarga->harga_beli) {
             $existKenaikanHarga->update([
                 'is_confirmed' => true
             ]);

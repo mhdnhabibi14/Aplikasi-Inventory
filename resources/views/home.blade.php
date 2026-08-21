@@ -11,6 +11,7 @@
             </h5>
 
         </div>
+
         <div class="row">
             <div class="col-sm-6 col-md-3 d-flex">
                 <div class="card card-stats card-round h-80 w-100"
@@ -121,6 +122,7 @@
                 </div>
             </div>
         </div>
+
         <div class="row mt-4">
             <div class="col-md-12">
                 <div class="card card-round">
@@ -140,93 +142,420 @@
                     </div>
 
                     <div class="card-body">
-                        <div style="height: 350px;">
-                            <canvas id="grafikPendapatanPengeluaran"></canvas>
-                        </div>
+                        <div id="grafikPendapatanPengeluaran"></div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-@endsection
-@push('script')
-    <script>
-        const ctx = document
-            .getElementById('grafikPendapatanPengeluaran')
-            .getContext('2d');
 
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [
-                    'Jan',
-                    'Feb',
-                    'Mar',
-                    'Apr',
-                    'Mei',
-                    'Jun',
-                    'Jul',
-                    'Agu',
-                    'Sep',
-                    'Okt',
-                    'Nov',
-                    'Des'
-                ],
-                datasets: [{
-                        label: 'Pendapatan',
-                        data: @json($pendapatanPerBulan),
-                        backgroundColor: 'rgba(13, 110, 253, 0.75)',
-                        borderColor: 'rgba(13, 110, 253, 1)',
-                        borderWidth: 1,
-                        borderRadius: 6,
-                        borderSkipped: false
+        <div class="row mt-4">
+            {{-- Produk dengan stok minimal --}}
+            <div class="col-md-6">
+                <div class="card card-round h-100">
+                    <div class="card-header" style="background: #fff4e5;">
+                        <div class="card-title">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            Produk dengan Stok Minimal
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Produk</th>
+                                        <th>Varian</th>
+                                        <th>Stok</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $no = 1;
+                                    @endphp
+                                    @forelse ($produkStokMinimal as $produk)
+                                        @foreach ($produk->varian as $varian)
+                                            @if ($varian->stok_varian < 10)
+                                                <tr>
+                                                    <td>{{ $no++ }}</td>
+                                                    <td>{{ $produk->nama_produk }}</td>
+                                                    <td>{{ $varian->nama_varian }}</td>
+                                                    <td>
+                                                        <span class="badge bg-warning text-dark">
+                                                            {{ $varian->stok_varian }} pcs
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center">
+                                                Tidak ada produk dengan stok minimal
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Produk Terlaris --}}
+            <div class="col-md-6">
+                <div class="card card-round h-100">
+                    <div class="card-header" style="background: #eef7ff;">
+                        <div class="card-title">
+                            <i class="fas fa-chart-bar text-primary me-2"></i>
+                            Produk Terlaris
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="chart-produk-terlaris"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+
+            <div class="col-md-12">
+
+                <div class="card card-round">
+
+                    <div class="card-header"
+                        style="
+                    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+                    color: white;
+                    border-radius: 10px 10px 0 0;
+                ">
+
+                        <div class="card-head-row">
+
+                            <div class="card-title text-white">
+
+                                <i class="fas fa-chart-line me-2"></i>
+
+                                5 Produk dengan Kenaikan Harga Tertinggi
+
+                            </div>
+
+                            <div class="card-tools">
+
+                                <span class="text-white">
+                                    Berdasarkan transaksi pemasukan
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        @if (count($chartKenaikanHarga) > 0)
+                            <div style="height: 400px;">
+
+                                <div id="chartKenaikanHarga" style="height: 100%;">
+                                </div>
+
+                            </div>
+                        @else
+                            <div class="text-center py-5">
+
+                                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+
+                                <h5 class="text-muted">
+                                    Belum ada data kenaikan harga
+                                </h5>
+
+                                <p class="text-muted mb-0">
+                                    Data akan muncul setelah terdapat perubahan
+                                    harga produk.
+                                </p>
+
+                            </div>
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    @endsection
+    @push('script')
+        <script>
+            const options = {
+                series: [{
+                        name: 'Pendapatan',
+                        data: @json($pendapatanPerBulan)
                     },
                     {
-                        label: 'Pengeluaran',
-                        data: @json($pengeluaranPerBulan),
-                        backgroundColor: 'rgba(255, 159, 67, 0.75)',
-                        borderColor: 'rgba(255, 159, 67, 1)',
-                        borderWidth: 1,
-                        borderRadius: 6,
-                        borderSkipped: false
+                        name: 'Pengeluaran',
+                        data: @json($pengeluaranPerBulan)
                     },
                     {
-                        label: 'Margin',
-                        data: @json($marginPerBulan),
-                        backgroundColor: 'rgba(40, 199, 111, 0.75)',
-                        borderColor: 'rgba(40, 199, 111, 1)',
-                        borderWidth: 1,
-                        borderRadius: 6,
-                        borderSkipped: false
+                        name: 'Margin',
+                        data: @json($marginPerBulan)
                     }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
-                            }
+                ],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    toolbar: {
+                        show: false
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '45%',
+                        borderRadius: 6,
+                        borderRadiusApplication: 'end'
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                xaxis: {
+                    categories: [
+                        'Jan',
+                        'Feb',
+                        'Mar',
+                        'Apr',
+                        'Mei',
+                        'Jun',
+                        'Jul',
+                        'Agu',
+                        'Sep',
+                        'Okt',
+                        'Nov',
+                        'Des'
+                    ]
+                },
+                yaxis: {
+                    beginAtZero: true,
+                    labels: {
+                        formatter: function(value) {
+                            return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
                         }
                     }
                 },
-                plugins: {
+                tooltip: {
+                    y: {
+                        formatter: function(value) {
+                            return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                        }
+                    }
+                },
+                legend: {
+                    position: 'top'
+                }
+            };
+            const chart = new ApexCharts(
+                document.querySelector("#grafikPendapatanPengeluaran"),
+                options
+            );
+            chart.render();
+
+            //Produk Terlaris
+            $(document).ready(function() {
+                const produk = @json($produkTerlaris);
+                const namaProduk = produk.map(function(item) {
+                    return item.nama_produk;
+                });
+
+                const totalTerjual = produk.map(function(item) {
+                    return Number(item.total_terjual);
+                });
+
+                const options = {
+                    series: [{
+                        name: 'Terjual',
+                        data: totalTerjual
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 350,
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: true,
+                            borderRadius: 6,
+                            barHeight: '55%'
+                        }
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function(value) {
+                            return value + ' pcs';
+                        }
+                    },
+                    xaxis: {
+                        categories: namaProduk,
+                        title: {
+                            text: 'Jumlah Terjual'
+                        }
+                    },
                     tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label +
-                                    ': Rp ' +
-                                    new Intl.NumberFormat('id-ID')
-                                    .format(context.raw);
+                        y: {
+                            formatter: function(value) {
+                                return value + ' pcs';
                             }
                         }
                     }
+                };
+                const chart = new ApexCharts(
+                    document.querySelector("#chart-produk-terlaris"),
+                    options
+                );
+                chart.render();
+
+            });
+
+            document.addEventListener("DOMContentLoaded", function() {
+
+                const chartData = @json($chartKenaikanHarga);
+
+                if (chartData.length === 0) {
+                    return;
                 }
-            }
-        });
-    </script>
-@endpush
+
+                const rupiah = new Intl.NumberFormat('id-ID');
+
+
+                const options = {
+
+                    chart: {
+
+                        type: 'line',
+
+                        height: 400,
+
+                        toolbar: {
+                            show: true
+                        },
+
+                        zoom: {
+                            enabled: true
+                        }
+
+                    },
+
+
+                    series: chartData,
+
+
+                    xaxis: {
+
+                        type: 'category',
+
+                        title: {
+                            text: 'Tanggal'
+                        }
+
+                    },
+
+
+                    yaxis: {
+
+                        title: {
+                            text: 'Harga Produk'
+                        },
+
+                        labels: {
+
+                            formatter: function(value) {
+
+                                return 'Rp ' +
+                                    rupiah.format(value);
+
+                            }
+
+                        }
+
+                    },
+
+
+                    stroke: {
+
+                        curve: 'smooth',
+
+                        width: 3
+
+                    },
+
+
+                    markers: {
+
+                        size: 5,
+
+                        hover: {
+                            size: 7
+                        }
+
+                    },
+
+
+                    tooltip: {
+
+                        y: {
+
+                            formatter: function(value) {
+
+                                return 'Rp ' +
+                                    rupiah.format(value);
+
+                            }
+
+                        }
+
+                    },
+
+
+                    legend: {
+
+                        position: 'bottom',
+
+                        horizontalAlign: 'center'
+
+                    },
+
+
+                    grid: {
+
+                        borderColor: '#e5e7eb',
+
+                        strokeDashArray: 4
+
+                    },
+
+
+                    dataLabels: {
+
+                        enabled: false
+
+                    }
+
+                };
+
+
+                const chart = new ApexCharts(
+                    document.querySelector("#chartKenaikanHarga"),
+                    options
+                );
+
+
+                chart.render();
+
+            });
+        </script>
+    @endpush

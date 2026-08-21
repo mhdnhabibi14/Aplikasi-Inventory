@@ -1,7 +1,7 @@
 <div class="sidebar" data-background-color="white">
     <div class="sidebar-logo">
         <!-- Logo Header -->
-        <div class="logo-header" data-background-color="blue">
+        <div class="logo-header" style="background: linear-gradient(135deg,#3B82F6,#60A5FA); color: white;">
             <a href="/home" class="logo">
                 <img src="{{ asset('template') }}/assets/img/kaiadmin/logo_light.svg" alt="navbar brand"
                     class="navbar-brand" height="20" />

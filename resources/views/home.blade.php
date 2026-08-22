@@ -150,7 +150,7 @@
 
         <div class="row mt-4">
             {{-- Produk dengan stok minimal --}}
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="card card-round h-100">
                     <div class="card-header" style="background: #fff4e5;">
                         <div class="card-title">
@@ -203,7 +203,7 @@
             </div>
 
             {{-- Produk Terlaris --}}
-            <div class="col-md-6">
+            <div class="col-md-7">
                 <div class="card card-round h-100">
                     <div class="card-header" style="background: #eef7ff;">
                         <div class="card-title">
@@ -219,73 +219,43 @@
         </div>
 
         <div class="row mt-4">
-
             <div class="col-md-12">
-
                 <div class="card card-round">
-
                     <div class="card-header"
-                        style="
-                    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-                    color: white;
-                    border-radius: 10px 10px 0 0;
-                ">
-
+                        style="background: linear-gradient(135deg, #6366f1, #818cf8); color: white; border-radius: 10px 10px 0 0;">
                         <div class="card-head-row">
-
                             <div class="card-title text-white">
-
-                                <i class="fas fa-chart-line me-2"></i>
-
-                                5 Produk dengan Kenaikan Harga Tertinggi
-
+                                <i class="fas fa-tags me-2"></i>
+                                Perbandingan Harga Awal vs Harga Sekarang
                             </div>
-
                             <div class="card-tools">
-
                                 <span class="text-white">
-                                    Berdasarkan transaksi pemasukan
+                                    5 Produk
                                 </span>
-
                             </div>
-
                         </div>
-
                     </div>
-
-
                     <div class="card-body">
-
-                        @if (count($chartKenaikanHarga) > 0)
+                        @if (count($hargaAwalChart) > 0)
                             <div style="height: 400px;">
-
-                                <div id="chartKenaikanHarga" style="height: 100%;">
+                                <div id="chartPerbandinganHarga" style="height: 100%;">
                                 </div>
-
                             </div>
                         @else
                             <div class="text-center py-5">
-
-                                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
-
+                                <i class="fas fa-tags fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">
-                                    Belum ada data kenaikan harga
+                                    Belum ada data perubahan harga
                                 </h5>
-
                                 <p class="text-muted mb-0">
-                                    Data akan muncul setelah terdapat perubahan
-                                    harga produk.
+                                    Data akan muncul setelah terdapat transaksi
+                                    pemasukan dengan harga yang berbeda.
                                 </p>
-
                             </div>
                         @endif
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
     @endsection
     @push('script')
@@ -421,141 +391,127 @@
 
             });
 
+            // Perbandingan Harga awal dan sekarang
             document.addEventListener("DOMContentLoaded", function() {
-
-                const chartData = @json($chartKenaikanHarga);
-
-                if (chartData.length === 0) {
+                const labels = @json($labelPerbandinganHarga);
+                const hargaAwal = @json($hargaAwalChart);
+                const hargaSekarang = @json($hargaSekarangChart);
+                const kenaikan = @json($kenaikanHargaChart);
+                const persentase = @json($persentaseKenaikanChart);
+                if (hargaAwal.length === 0) {
                     return;
                 }
 
-                const rupiah = new Intl.NumberFormat('id-ID');
-
-
+                const formatter = new Intl.NumberFormat('id-ID');
                 const options = {
-
-                    chart: {
-
-                        type: 'line',
-
-                        height: 400,
-
-                        toolbar: {
-                            show: true
+                    series: [{
+                            name: 'Harga Awal',
+                            data: hargaAwal
                         },
-
-                        zoom: {
-                            enabled: true
+                        {
+                            name: 'Harga Sekarang',
+                            data: hargaSekarang
                         }
-
+                    ],
+                    chart: {
+                        type: 'bar',
+                        height: 400,
+                        toolbar: {
+                            show: false
+                        }
                     },
-
-
-                    series: chartData,
-
-
+                    plotOptions: {
+                        bar: {
+                            horizontal: true,
+                            borderRadius: 5,
+                            barHeight: '65%'
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
                     xaxis: {
-
-                        type: 'category',
-
-                        title: {
-                            text: 'Tanggal'
-                        }
-
-                    },
-
-
-                    yaxis: {
-
+                        categories: labels,
                         title: {
                             text: 'Harga Produk'
                         },
-
                         labels: {
-
                             formatter: function(value) {
-
                                 return 'Rp ' +
-                                    rupiah.format(value);
-
+                                    formatter.format(value);
                             }
-
                         }
-
                     },
-
-
-                    stroke: {
-
-                        curve: 'smooth',
-
-                        width: 3
-
-                    },
-
-
-                    markers: {
-
-                        size: 5,
-
-                        hover: {
-                            size: 7
+                    yaxis: {
+                        labels: {
+                            style: {
+                                fontSize: '13px',
+                                fontWeight: 500
+                            }
                         }
-
                     },
-
-
                     tooltip: {
+                        shared: true,
+                        intersect: false,
+                        custom: function({
+                            series,
+                            dataPointIndex,
+                            w
+                        }) {
+                            const namaProduk = labels[dataPointIndex];
+                            const awal = hargaAwal[dataPointIndex];
+                            const sekarang = hargaSekarang[dataPointIndex];
+                            const naik = kenaikan[dataPointIndex];
+                            const persen = persentase[dataPointIndex];
+                            return `
+                                    <div style="padding: 12px 15px; min-width: 220px;">
+                                        <strong>
+                                            ${namaProduk}
+                                        </strong>
+                                            <hr style="margin: 8px 0;">
+                                        <div>
+                                            Harga Awal:
+                                            <strong>
+                                                Rp ${formatter.format(awal)}
+                                            </strong>
+                                        </div>
+                                        <div>
+                                            Harga Sekarang:
+                                            <strong>
+                                                Rp ${formatter.format(sekarang)}
+                                            </strong>
+                                        </div>
 
-                        y: {
-
-                            formatter: function(value) {
-
-                                return 'Rp ' +
-                                    rupiah.format(value);
-
-                            }
-
+                                        <div style="margin-top: 5px;">
+                                            Kenaikan:
+                                                <strong>
+                                                    +Rp ${formatter.format(naik)}
+                                                </strong>
+                                                <span>
+                                                    (+${persen}%)
+                                                </span>
+                                        </div>
+                                    </div>
+                                    `;
                         }
-
                     },
-
-
                     legend: {
-
                         position: 'bottom',
-
                         horizontalAlign: 'center'
-
                     },
-
-
                     grid: {
-
                         borderColor: '#e5e7eb',
-
                         strokeDashArray: 4
-
-                    },
-
-
-                    dataLabels: {
-
-                        enabled: false
-
                     }
-
                 };
 
-
                 const chart = new ApexCharts(
-                    document.querySelector("#chartKenaikanHarga"),
+                    document.querySelector(
+                        "#chartPerbandinganHarga"
+                    ),
                     options
                 );
-
-
                 chart.render();
-
             });
         </script>
     @endpush

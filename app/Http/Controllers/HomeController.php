@@ -41,10 +41,10 @@ class HomeController extends Controller
 
         $totalTransaksi = Transaksi::whereBetween('created_at', [$tanggalMulai . ' 00:00:00', $tanggalSelesai . ' 23:59:59'])->count();
 
-        $biayaKeluar = Transaksi::where('jenis_transaksi', 'pengeluaran')
+        $biayaKeluar = Transaksi::where('jenis_transaksi', 'pemasukan')
             ->whereBetween('created_at', [$tanggalMulai . ' 00:00:00', $tanggalSelesai . ' 23:59:59'])
             ->sum('total_harga');
-        $biayaDiterima = Transaksi::where('jenis_transaksi', 'pemasukan')
+        $biayaDiterima = Transaksi::where('jenis_transaksi', 'pengeluaran')
             ->whereBetween('created_at', [$tanggalMulai . ' 00:00:00', $tanggalSelesai . ' 23:59:59'])
             ->sum('total_harga');
 
@@ -52,13 +52,13 @@ class HomeController extends Controller
 
         // Data grafik pendapatan dan pengeluaran per bulan
         $grafikPendapatan = Transaksi::select(DB::raw('MONTH(created_at) as bulan'), DB::raw('SUM(total_harga) as total'))
-            ->where('jenis_transaksi', 'pemasukan')
+            ->where('jenis_transaksi', 'pengeluaran')
             ->whereYear('created_at', now()->year)
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('total', 'bulan');
 
         $grafikPengeluaran = Transaksi::select(DB::raw('MONTH(created_at) as bulan'), DB::raw('SUM(total_harga) as total'))
-            ->where('jenis_transaksi', 'pengeluaran')
+            ->where('jenis_transaksi', 'pemasukan')
             ->whereYear('created_at', now()->year)
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('total', 'bulan');
@@ -97,67 +97,102 @@ class HomeController extends Controller
             ->get();
 
         //Kenaikan Harga Produk
-        $riwayatHarga = TransaksiItems::with(['varian.produk', 'transaksi'])
-            ->whereHas('transaksi', function ($query) {
-                $query->where('jenis_transaksi', 'pemasukan');
-            })
-            ->whereNotNull('harga')
-            ->orderBy('created_at')
-            ->get();
+        $produkPerbandinganHarga = TransaksiItems::query()
+            ->select(
+                'transaksi_items.nomor_sku',
+                DB::raw('MIN(transaksi_items.harga) as harga_awal'),
+                DB::raw('MAX(transaksi_items.harga) as harga_sekarang')
+            )
+            ->join('transaksis', 'transaksi_items.transaksi_id', '=', 'transaksis.id')
+            ->where('transaksis.jenis_transaksi', 'pemasukan')
+            ->whereNotNull('transaksi_items.harga')
+            ->groupBy('transaksi_items.nomor_sku')
+            ->get()
+            ->map(function ($item) {
+                $hargaAwal = (float) $item->harga_awal;
+                $hargaSekarang = (float) $item->harga_sekarang;
+                $kenaikan = $hargaSekarang - $hargaAwal;
+                $persentase = $hargaAwal > 0
+                    ? ($kenaikan / $hargaAwal) * 100
+                    : 0;
 
+                // Ambil data varian dan produk
+                $varian = VarianProduk::with('produk')
+                    ->where('nomor_sku', $item->nomor_sku)
+                    ->first();
 
-        $produkHarga = $riwayatHarga
-            ->groupBy('nomor_sku')
-            ->map(function ($items) {
-                $hargaAwal = (float) $items->first()->harga;
-                $hargaAkhir = (float) $items->last()->harga;
-                $kenaikan = $hargaAkhir - $hargaAwal;
-                $persentase = $hargaAwal > 0 ? ($kenaikan / $hargaAwal) * 100 : 0;
-                $varian = $items->first()->varian;
                 return [
-                    'sku' => $items->first()->nomor_sku,
-                    'nama_produk' => optional(optional($varian)->produk)->nama_produk ?? 'Produk',
-                    'nama_varian' => optional($varian)->nama_varian ?? '',
+                    'nomor_sku' => $item->nomor_sku,
+                    'nama_produk' => $varian?->produk?->nama_produk ?? 'Produk',
+                    'nama_varian' => $varian?->nama_varian ?? '',
                     'harga_awal' => $hargaAwal,
-                    'harga_akhir' => $hargaAkhir,
+                    'harga_sekarang' => $hargaSekarang,
                     'kenaikan' => $kenaikan,
                     'persentase' => round($persentase, 2),
-                    'riwayat' => $items->map(function ($item) {
-                        return [
-                            'tanggal' => $item->created_at->format('d M Y'),
-                            'harga' => (float) $item->harga,
-                        ];
-                    })->values()->toArray(),
                 ];
             })
 
-            // Hanya mengambil produk yang benar-benar mengalami kenaikan
+            // Hanya produk yang mengalami kenaikan harga
             ->filter(function ($produk) {
                 return $produk['kenaikan'] > 0;
             })
-            // Urutkan dari kenaikan terbesar
+            // Urutkan berdasarkan nominal kenaikan terbesar
             ->sortByDesc('kenaikan')
             // Ambil 5 produk
-            ->take(5)
-            ->values();
+            ->take(5)->values();
 
-        $chartKenaikanHarga = $produkHarga
+        $labelPerbandinganHarga = $produkPerbandinganHarga
             ->map(function ($produk) {
-                return [
-                    'name' => $produk['nama_produk'] . ($produk['nama_varian'] ? ' - ' . $produk['nama_varian'] : ''),
-                    'data' => collect($produk['riwayat'])->map(function ($item) {
-                        return [
-                            'x' => $item['tanggal'],
-                            'y' => $item['harga'],
-                        ];
-                    })
-                        ->values()
-                        ->toArray(),
-                ];
+                return $produk['nama_produk']
+                    . ($produk['nama_varian'] ? ' - ' . $produk['nama_varian'] : '');
             })
-            ->values()
             ->toArray();
 
-        return view('home', compact('totalTransaksi', 'barangMasuk', 'barangKeluar', 'biayaKeluar', 'biayaDiterima', 'margin', 'tanggalMulai', 'tanggalSelesai', 'pageTitle', 'pendapatanPerBulan', 'pengeluaranPerBulan', 'marginPerBulan', 'produkStokMinimal', 'produkTerlaris', 'produkHarga', 'chartKenaikanHarga',));
+        $hargaAwalChart = $produkPerbandinganHarga
+            ->map(function ($produk) {
+                return $produk['harga_awal'];
+            })
+            ->toArray();
+
+        $hargaSekarangChart = $produkPerbandinganHarga
+            ->map(function ($produk) {
+                return $produk['harga_sekarang'];
+            })
+            ->toArray();
+
+        $kenaikanHargaChart = $produkPerbandinganHarga
+            ->map(function ($produk) {
+                return $produk['kenaikan'];
+            })
+            ->toArray();
+
+        $persentaseKenaikanChart = $produkPerbandinganHarga
+            ->map(function ($produk) {
+                return $produk['persentase'];
+            })
+            ->toArray();
+
+        return view('home', compact(
+            'totalTransaksi',
+            'barangMasuk',
+            'barangKeluar',
+            'biayaKeluar',
+            'biayaDiterima',
+            'margin',
+            'tanggalMulai',
+            'tanggalSelesai',
+            'pageTitle',
+            'pendapatanPerBulan',
+            'pengeluaranPerBulan',
+            'marginPerBulan',
+            'produkStokMinimal',
+            'produkTerlaris',
+            'produkPerbandinganHarga',
+            'labelPerbandinganHarga',
+            'hargaAwalChart',
+            'hargaSekarangChart',
+            'kenaikanHargaChart',
+            'persentaseKenaikanChart'
+        ));
     }
 }

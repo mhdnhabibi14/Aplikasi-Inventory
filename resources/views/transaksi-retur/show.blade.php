@@ -1,5 +1,15 @@
 @extends('layouts.kai')
 @section('page_title', $pageTitle)
+@section('breadcrumb')
+    <i class="fas fa-chevron-right breadcrumb-arrow"></i>
+    <span class="breadcrumb-item-custom">
+        Transaksi Retur
+    </span>
+    <i class="fas fa-chevron-right breadcrumb-arrow"></i>
+    <span class="breadcrumb-current">
+        Detail Transaksi Retur
+    </span>
+@endsection
 @section('content')
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">

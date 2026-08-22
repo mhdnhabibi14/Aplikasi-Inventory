@@ -1,5 +1,11 @@
 @extends('layouts.kai')
 @section('page_title', $pageTitle)
+@section('breadcrumb')
+    <i class="fas fa-chevron-right breadcrumb-arrow"></i>
+    <span class="breadcrumb-current">
+        Laporan Kenaikan Harga
+    </span>
+@endsection
 @section('content')
     <div class="card py-5">
         <div class="card-body">

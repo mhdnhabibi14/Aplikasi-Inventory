@@ -1,5 +1,15 @@
 @extends('layouts.kai')
 @section('page_title', $pageTitle)
+@section('breadcrumb')
+    <i class="fas fa-chevron-right breadcrumb-arrow"></i>
+    <span class="breadcrumb-item-custom">
+        Stok Opname
+    </span>
+    <i class="fas fa-chevron-right breadcrumb-arrow"></i>
+    <span class="breadcrumb-current">
+        Periode Stok Opname
+    </span>
+@endsection
 @section('content')
     <div class="card p-5">
         <div class="d-flex justify-content-end">

@@ -1,5 +1,11 @@
 @extends('layouts.kai')
 @section('page_title', $pageTitle)
+@section('breadcrumb')
+    <i class="fas fa-chevron-right breadcrumb-arrow"></i>
+    <span class="breadcrumb-current">
+        Dashboard Analitik
+    </span>
+@endsection
 @section('content')
     <div class="container-fluid">
         <div class="text-center mb-4">

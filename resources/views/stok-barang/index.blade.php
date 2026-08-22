@@ -1,5 +1,21 @@
 @extends('layouts.kai')
 @section('page_title', $pageTitle)
+@section('breadcrumb')
+
+    <i class="fas fa-chevron-right breadcrumb-arrow"></i>
+
+    <span class="breadcrumb-item-custom">
+        Master Data
+    </span>
+
+    <i class="fas fa-chevron-right breadcrumb-arrow"></i>
+
+    <span class="breadcrumb-current">
+        Stok Barang
+    </span>
+
+@endsection
+
 @section('content')
     <div class="card">
         <div class="card-body py-5">

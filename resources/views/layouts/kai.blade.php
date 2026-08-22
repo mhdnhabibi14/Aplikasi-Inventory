@@ -35,6 +35,9 @@
     <link rel="stylesheet" href="{{ asset('template') }}/assets/css/plugins.min.css" />
     <link rel="stylesheet" href="{{ asset('template') }}/assets/css/kaiadmin.min.css" />
 
+    {{-- CSS custom aplikasi --}}
+    <link rel="stylesheet" href="{{ asset('template') }}/assets/css/custom.css" />
+
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('template') }}/assets/css/demo.css" />
 </head>
@@ -133,8 +136,20 @@
 
             <div class="container">
                 <div class="page-inner">
-                    <div class="page-header">
-                        <h4 class="page-title">@yield('page_title', 'Aplikasi Inventory')</h4>
+                    <div class="page-header-custom">
+                        {{-- Judul halaman --}}
+                        <div class="page-title-wrapper">
+                            <h4 class="page-title">
+                                @yield('page_title', 'Aplikasi Inventory')
+                            </h4>
+                        </div>
+                        {{-- Breadcrumb --}}
+                        <div class="breadcrumb-wrapper">
+                            <a href="{{ route('home') }}" class="breadcrumb-home">
+                                <i class="fas fa-home"></i>
+                            </a>
+                            @yield('breadcrumb')
+                        </div>
                     </div>
                     @yield('content')
                 </div>

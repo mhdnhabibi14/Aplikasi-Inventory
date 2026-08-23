@@ -118,6 +118,13 @@ class Sidebar extends Component
                 'icon' => 'fas fa-level-up-alt',
                 'is_dropdown' => false
             ],
+            [
+                'label' => 'Pengaturan Aplikasi',
+                'route' => 'pengaturan-apk.index',
+                'is_active' => request()->routeIs('pengaturan-apk.*'),
+                'icon' => 'fas fa-cog',
+                'is_dropdown' => false
+            ],
         ];
     }
 

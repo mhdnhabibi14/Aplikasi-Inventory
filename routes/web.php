@@ -6,6 +6,7 @@ use App\Http\Controllers\ItemStokOpnameController;
 use App\Http\Controllers\KartuStokController;
 use App\Http\Controllers\KategoriProdukController;
 use App\Http\Controllers\LaporanKenaikanHargaController;
+use App\Http\Controllers\PengaturanApkController;
 use App\Http\Controllers\PeriodeStokOpnameController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\StokBarangController;
@@ -40,6 +41,8 @@ Route::middleware('auth')->group(function () {
     Route::post('export-laporan-kartu-stok', [KartuStokController::class, 'exportLaporan']);
 
     Route::resource('laporan-kenaikan-harga', LaporanKenaikanHargaController::class)->only(['index', 'update']);
+
+    Route::resource('pengaturan-apk', PengaturanApkController::class)->only(['index', 'update']);
 
     Route::prefix('master-data')->name('master-data.')->group(function () {
         Route::resource('kategori-produk', KategoriProdukController::class);

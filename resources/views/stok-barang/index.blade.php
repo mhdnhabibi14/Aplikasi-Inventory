@@ -1,19 +1,14 @@
 @extends('layouts.kai')
 @section('page_title', $pageTitle)
 @section('breadcrumb')
-
     <i class="fas fa-chevron-right breadcrumb-arrow"></i>
-
     <span class="breadcrumb-item-custom">
         Master Data
     </span>
-
     <i class="fas fa-chevron-right breadcrumb-arrow"></i>
-
     <span class="breadcrumb-current">
         Stok Barang
     </span>
-
 @endsection
 
 @section('content')
@@ -35,7 +30,13 @@
                 </div>
                 {{-- end Filter --}}
                 {{-- Stok Minim --}}
-                <div class="col-2"></div>
+                <div class="col-2">
+                    <a href="{{ route('master-data.stok-barang.index', ['stok_minimal' => 10]) }}"
+                        class="btn {{ request('stok_minimal') == 10 ? 'btn-danger' : 'btn-warning' }} btn-round w-100">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Stok Minimal
+                    </a>
+                </div>
                 {{-- end Stok Minim --}}
                 {{-- Reset Filter --}}
                 <div class="col-1">

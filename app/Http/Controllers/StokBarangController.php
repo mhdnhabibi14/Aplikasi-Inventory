@@ -16,6 +16,7 @@ class StokBarangController extends Controller
         $perPage = request()->query('perPage') ?? 10;
         $search = request()->query('search');
         $requestKategori = request()->query('kategori');
+        $stokMinimal = request()->query('stok_minimal');
 
         $query = VarianProduk::query();
         $query = $query->with('produk', 'produk.kategori');
@@ -34,6 +35,10 @@ class StokBarangController extends Controller
             $query->whereHas('produk', function ($query) use ($requestKategori) {
                 $query->where('kategori_produk_id', $requestKategori);
             });
+        }
+
+        if ($stokMinimal == 10) {
+            $query->where('stok_varian', '<=', 10);
         }
 
         $paginator = $query->paginate($perPage)->appends(request()->query());

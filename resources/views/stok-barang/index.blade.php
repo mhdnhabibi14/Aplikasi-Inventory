@@ -31,8 +31,8 @@
                 {{-- end Filter --}}
                 {{-- Stok Minim --}}
                 <div class="col-2">
-                    <a href="{{ route('master-data.stok-barang.index', ['stok_minimal' => 10]) }}"
-                        class="btn {{ request('stok_minimal') == 10 ? 'btn-danger' : 'btn-warning' }} btn-round w-100">
+                    <a href="{{ route('master-data.stok-barang.index', ['stok_minimal' => $minimalStok]) }}"
+                        class="btn {{ request('stok_minimal') == $minimalStok ? 'btn-danger' : 'btn-warning' }} btn-round w-100">
                         <i class="fas fa-exclamation-triangle me-1"></i>
                         Stok Minimal
                     </a>

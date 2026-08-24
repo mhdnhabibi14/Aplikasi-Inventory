@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\PengaturanApk;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +22,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Paginator::useBootstrapFive();
+        View::composer('*', function ($view) {
+
+            $pengaturanApk = PengaturanApk::first();
+
+            $namaAplikasi = $pengaturanApk?->nama_aplikasi
+                ?? 'Aplikasi Inventory';
+
+            $view->with('namaAplikasi', $namaAplikasi);
+        });
     }
 }

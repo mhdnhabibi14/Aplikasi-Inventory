@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PengaturanApk;
 use App\Models\Transaksi;
 use App\Models\TransaksiItems;
 use App\Models\VarianProduk;
@@ -28,9 +29,12 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $pageTitle = "Dashboard Analitik";
+        $pengaturanApk = PengaturanApk::first();
 
-        $tanggalMulai = $request->tanggal_mulai ?? now()->startOfMonth()->format('Y-m-d');
-        $tanggalSelesai = $request->tanggal_selesai ?? now()->endOfMonth()->format('Y-m-d');
+        $tanggalMulai = $request->tanggal_mulai ?? $pengaturanApk->tanggal_analisa_awal;
+        $tanggalSelesai = $request->tanggal_selesai ?? $pengaturanApk->tanggal_analisa_akhir;
+
+        $minimalStok = $pengaturanApk->minimal_stok;
 
         $barangMasuk = Transaksi::where('jenis_transaksi', 'pemasukan')
             ->whereBetween('created_at', [$tanggalMulai . ' 00:00:00', $tanggalSelesai . ' 23:59:59'])
@@ -53,13 +57,13 @@ class HomeController extends Controller
         // Data grafik pendapatan dan pengeluaran per bulan
         $grafikPendapatan = Transaksi::select(DB::raw('MONTH(created_at) as bulan'), DB::raw('SUM(total_harga) as total'))
             ->where('jenis_transaksi', 'pengeluaran')
-            ->whereYear('created_at', now()->year)
+            ->whereYear('created_at', [$tanggalMulai . ' 00:00:00', $tanggalSelesai . ' 23:59:59'])
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('total', 'bulan');
 
         $grafikPengeluaran = Transaksi::select(DB::raw('MONTH(created_at) as bulan'), DB::raw('SUM(total_harga) as total'))
             ->where('jenis_transaksi', 'pemasukan')
-            ->whereYear('created_at', now()->year)
+            ->whereYear('created_at', [$tanggalMulai . ' 00:00:00', $tanggalSelesai . ' 23:59:59'])
             ->groupBy(DB::raw('MONTH(created_at)'))
             ->pluck('total', 'bulan');
 
@@ -79,8 +83,8 @@ class HomeController extends Controller
 
         // Produk dengan stok minimal
         $produkStokMinimal = \App\Models\Produk::with('varian')
-            ->whereHas('varian', function ($query) {
-                $query->where('stok_varian', '<', 10);
+            ->whereHas('varian', function ($query) use ($minimalStok) {
+                $query->where('stok_varian', '<=', $minimalStok);
             })->limit(10)->get();
 
         // Produk terlaris
@@ -192,7 +196,8 @@ class HomeController extends Controller
             'hargaAwalChart',
             'hargaSekarangChart',
             'kenaikanHargaChart',
-            'persentaseKenaikanChart'
+            'persentaseKenaikanChart',
+            'minimalStok'
         ));
     }
 }

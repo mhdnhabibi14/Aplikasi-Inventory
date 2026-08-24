@@ -9,13 +9,14 @@
 @section('content')
     <div class="container-fluid">
         <div class="text-center mb-4">
-            <h5>
-                Dashboard Analitik Periode
-                {{ \Carbon\Carbon::parse($tanggalMulai)->translatedFormat('d M Y') }}
-                s/d
-                {{ \Carbon\Carbon::parse($tanggalSelesai)->translatedFormat('d M Y') }}
-            </h5>
-
+            <span class="text-muted">
+                Dashboard Analitik Periode Analisa:
+            </span>
+            <strong>
+                {{ \Carbon\Carbon::parse($tanggalMulai)->format('d M Y') }}
+                -
+                {{ \Carbon\Carbon::parse($tanggalSelesai)->format('d M Y') }}
+            </strong>
         </div>
 
         <div class="row">
@@ -162,6 +163,9 @@
                         <div class="card-title">
                             <i class="fas fa-exclamation-triangle text-warning me-2"></i>
                             Produk dengan Stok Minimal
+                            <span class="text-muted">
+                                (≤ {{ $minimalStok }} pcs)
+                            </span>
                         </div>
                     </div>
                     <div class="card-body">

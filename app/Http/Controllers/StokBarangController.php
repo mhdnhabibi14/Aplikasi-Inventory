@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\KategoriProduk;
+use App\Models\PengaturanApk;
 use App\Models\VarianProduk;
 use Illuminate\Http\Request;
 
@@ -13,6 +14,11 @@ class StokBarangController extends Controller
     {
         $pageTitle = $this->pageTitle;
         $kategori = KategoriProduk::all();
+
+        $pengaturanApk = PengaturanApk::first();
+
+        $minimalStok = $pengaturanApk->minimal_stok;
+
         $perPage = request()->query('perPage') ?? 10;
         $search = request()->query('search');
         $requestKategori = request()->query('kategori');
@@ -37,8 +43,8 @@ class StokBarangController extends Controller
             });
         }
 
-        if ($stokMinimal == 10) {
-            $query->where('stok_varian', '<=', 10);
+        if ($stokMinimal) {
+            $query->where('stok_varian', '<=', $minimalStok);
         }
 
         $paginator = $query->paginate($perPage)->appends(request()->query());
@@ -55,6 +61,6 @@ class StokBarangController extends Controller
         $paginator->setCollection($produk);
         $produk = $paginator;
 
-        return view('stok-barang.index', compact('pageTitle', 'produk', 'kategori'));
+        return view('stok-barang.index', compact('pageTitle', 'produk', 'kategori', 'minimalStok'));
     }
 }
